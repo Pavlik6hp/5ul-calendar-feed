@@ -1,0 +1,64 @@
+name: update-calendar-feed
+
+on:
+  schedule:
+    # каждые 30 минут; cron GitHub Actions может опаздывать на 5-15 мин — это нормально
+    - cron: "7,37 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: calendar-feed
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      # Кука сессии VRChat переживает запуски через cache:
+      # каждый ран сохраняет новый кэш, следующий подхватывает свежайший по префиксу.
+      - name: Restore session state
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: vrc-state-${{ github.run_id }}
+          restore-keys: |
+            vrc-state-
+
+      - name: Fetch events
+        env:
+          VRC_USERNAME: ${{ secrets.VRC_USERNAME }}
+          VRC_PASSWORD: ${{ secrets.VRC_PASSWORD }}
+          VRC_TOTP_SECRET: ${{ secrets.VRC_TOTP_SECRET }}
+          VRC_CONTACT: ${{ secrets.VRC_CONTACT }}
+        run: python fetch_events.py
+
+      - name: Save session state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: vrc-state-${{ github.run_id }}
+
+      - name: Commit feed
+        run: |
+          if [ -n "$(git status --porcelain docs)" ]; then
+            git config user.name "calendar-feed-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add docs
+            git commit -m "chore: update events feed"
+            git push
+          else
+            echo "feed unchanged"
+          fi
