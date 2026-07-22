@@ -1,6 +1,10 @@
 {
   "groups": [
     {
+      "id": "grp_528dc4da-8ccb-4c03-af92-cbd3c78eb74e",
+      "name": "Metronome Bar"
+    },
+    {
       "id": "grp_56fe79fc-ca06-4b67-858b-e4ec572afe5f",
       "name": "ARCA"
     }
