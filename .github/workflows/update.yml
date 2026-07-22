@@ -5,6 +5,15 @@ on:
     # каждые 30 минут; cron GitHub Actions может опаздывать на 5-15 мин — это нормально
     - cron: "7,37 * * * *"
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    # правка конфига/скрипта сразу перезапускает фид; коммиты самого бота
+    # (docs/ через GITHUB_TOKEN) новых ранов не порождают — петли нет
+    paths:
+      - groups.json
+      - fetch_events.py
+      - requirements.txt
+      - .github/workflows/update.yml
 
 permissions:
   contents: write
