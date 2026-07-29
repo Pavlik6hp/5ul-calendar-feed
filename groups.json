@@ -1,12 +1,32 @@
 {
   "groups": [
     {
+      "id": "grp_56fe79fc-ca06-4b67-858b-e4ec572afe5f",
+      "name": "ARCA"
+    },
+    {
       "id": "grp_528dc4da-8ccb-4c03-af92-cbd3c78eb74e",
       "name": "Metronome Bar"
     },
     {
-      "id": "grp_56fe79fc-ca06-4b67-858b-e4ec572afe5f",
-      "name": "ARCA"
+      "id": "grp_78387aa4-bfee-470e-acbf-2516cc3f06ab",
+      "name": "GAMER GIRL'S"
+    },
+    {
+      "id": "grp_f33fdd41-9145-4f9e-be98-32cb026060be",
+      "name": "RULE 20"
+    },
+    {
+      "id": "grp_a24425c3-9dcd-4758-b08d-4e372bc49a59",
+      "name": "Pale Vi"
+    },
+    {
+      "id": "grp_9a996159-f702-4ae6-879d-902a43620f02",
+      "name": "КЛОУНЫ"
+    },
+    {
+      "id": "grp_d0ae6214-73e4-4689-8e41-4a9defba723e",
+      "name": "ANUBIS CLUB"
     }
   ]
 }

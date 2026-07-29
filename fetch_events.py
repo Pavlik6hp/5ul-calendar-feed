@@ -48,6 +48,10 @@ PAST_GRACE = timedelta(hours=3)
 HORIZON = timedelta(days=35)
 DESC_LIMIT = 280
 HEARTBEAT = timedelta(hours=6)  # обновлять gen даже без изменений — маркер живости фида
+# Мир парсит максимум 96 событий (MAX_EVENTS контроллера). Режем глобально по
+# дате начала, иначе при переполнении клиент молча терял бы ПОСЛЕДНИЕ группы
+# списка целиком, а не самые дальние по времени события.
+TOTAL_CAP = 90
 
 # Символы, запечённые в TMP-атлас мира (см. CalendarSetup.CAL_CHARS).
 # Всё вне набора заменяем пробелом, чтобы в панели не было «квадратов».
@@ -236,6 +240,23 @@ def collect(s, cfg):
             "events": events,
         })
         log(gid + ": событий в горизонте — " + str(len(events)))
+
+    # Глобальный кап: оставляем TOTAL_CAP ближайших событий по всем группам
+    total = sum(len(g["events"]) for g in out_groups)
+    if total > TOTAL_CAP:
+        flat = []
+        for g in out_groups:
+            for ev in g["events"]:
+                flat.append((ev["s"], g["id"], ev))
+        flat.sort(key=lambda t: t[0])
+        keep = flat[:TOTAL_CAP]
+        kept_by_group = {}
+        for _, gid2, ev in keep:
+            kept_by_group.setdefault(gid2, []).append(ev)
+        for g in out_groups:
+            g["events"] = kept_by_group.get(g["id"], [])
+        log("глобальный кап: " + str(total) + " → " + str(TOTAL_CAP) +
+            " (обрезаны самые дальние по дате)")
 
     return out_groups
 
